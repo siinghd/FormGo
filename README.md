@@ -36,7 +36,7 @@ Here's a simple example of a form that uses `FormGo`. The errors are injected in
 
 ```jsx
 import React from 'react';
-import Form from 'FormGo';
+import Form from 'formgo';
 
 function MyForm() {
   const handleSubmit = (formData) => {
@@ -120,6 +120,7 @@ The `Form` component is where your form fields will live.
 
 ```jsx
 import { z } from 'zod';
+import Form from 'formgo';
 
 const userSchema = z.object({
   name: z.string().min(2).max(30),
