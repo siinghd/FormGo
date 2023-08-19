@@ -1,6 +1,6 @@
 {
   "name": "formgo",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A simple, flexible, and powerful React form library, designed to help you build efficient and robust web forms.",
   "main": "dist/formgo.js",
   "types": "dist/formgo.d.ts",
