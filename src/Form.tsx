@@ -32,6 +32,8 @@ interface Props {
   onError?: (errors: any) => void;
   onFieldChange?: (fieldName: string, fieldValue: any) => void;
   onFormChange?: (formData: any) => void;
+  className?: string;
+  style?: React.CSSProperties;
   children:
     | ((props: { errors: Record<string, string> }) => ReactNode)
     | ReactElement
@@ -48,6 +50,8 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
       onError,
       onFieldChange,
       onFormChange,
+      className,
+      style,
       children,
     },
     ref: React.Ref<{ resetForm: () => void }> | null | undefined
@@ -160,6 +164,8 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
         ref={formRef}
         onInput={onFieldChange || onFormChange ? handleInputChange : undefined}
         onSubmit={handleSubmit}
+        className={className}
+        style={style}
       >
         {typeof children === 'function' ? children({ errors }) : children}
       </form>

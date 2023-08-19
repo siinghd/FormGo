@@ -27,6 +27,7 @@ function App() {
       validationSchema={userSchema}
       onError={handleError}
       onFormChange={onFieldChange}
+      className="form"
     >
       {(props: any) => (
         <>

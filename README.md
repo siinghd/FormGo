@@ -80,6 +80,8 @@ The `Form` component is where your form fields will live. It can optionally acce
 - **onError? (errors: any) => void**: Optional function called when validation errors occur.
 - **onFieldChange? (fieldName: string, fieldValue: any) => void**: Optional function called when a field changes.
 - **onFormChange? (formData: any) => void**: Optional function called when any part of the form changes.
+- **className? string**: Optional class name to be added to the form element
+- **style? React.CSSProperties**: Optional inline styles to be applied to the form element.
 
 #### Ref
 
