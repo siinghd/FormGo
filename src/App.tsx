@@ -1,10 +1,14 @@
 import { z } from 'zod';
 import './App.css';
-import Form from 'formgo';
+import Form from './Form';
+import { useRef } from 'react';
 
 function App() {
+  const formRef = useRef<{ resetForm: () => void }>(null);
   const handleSubmit = (formData: any) => {
     console.log('Form data:', formData);
+    console.log('Form ref:', formRef.current);
+    formRef.current?.resetForm();
   };
   const userSchema = z.object({
     name: z.string().min(2).max(30),
@@ -18,6 +22,7 @@ function App() {
   };
   return (
     <Form
+      ref={formRef}
       onSubmit={handleSubmit}
       validationSchema={userSchema}
       onError={handleError}

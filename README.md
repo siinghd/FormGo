@@ -69,7 +69,7 @@ export default MyForm;
 
 ### `<Form />`
 
-The `Form` component is where your form fields will live.
+The `Form` component is where your form fields will live. It can optionally accept a `ref` to provide a method to reset the form.
 
 #### Props
 
@@ -80,6 +80,42 @@ The `Form` component is where your form fields will live.
 - **onError? (errors: any) => void**: Optional function called when validation errors occur.
 - **onFieldChange? (fieldName: string, fieldValue: any) => void**: Optional function called when a field changes.
 - **onFormChange? (formData: any) => void**: Optional function called when any part of the form changes.
+
+#### Ref
+
+When a `ref` is passed to the `Form` component, it provides the following method:
+
+- **resetForm(): void**: Method to reset the form to its initial state. It clears all field values and validation errors.
+
+##### Example of using `ref` to reset the form:
+
+```jsx
+import React, { useRef } from 'react';
+import Form from 'formgo';
+
+function MyForm() {
+  const formRef = useRef<{ resetForm: () => void }>(null);
+
+  const handleSubmit = (formData) => {
+    console.log('Form data:', formData);
+  };
+
+  const handleReset = () => {
+    formRef.current?.resetForm();
+  };
+
+  return (
+    <>
+      <Form ref={formRef} onSubmit={handleSubmit}>
+        {/* ... */}
+      </Form>
+      <button onClick={handleReset}>Reset Form</button>
+    </>
+  );
+}
+
+export default MyForm;
+```
 
 ## Validation
 
@@ -165,7 +201,7 @@ function MyForm() {
 
 ## Contributing
 
-We welcome contributions to `FormGo`!
+Your contributions to `FormGo` is welcome!
 
 ## License
 
