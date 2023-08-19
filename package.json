@@ -5,6 +5,25 @@
   "main": "dist/formgo.js",
   "types": "dist/formgo.d.ts",
   "license": "MIT",
+  "keywords": [
+    "react",
+    "form",
+    "validation",
+    "zod",
+    "form-validation",
+    "react-forms",
+    "form-library",
+    "form-builder",
+    "form-generator",
+    "input-validation",
+    "react-components",
+    "react-hooks",
+    "custom-validation",
+    "form-handling",
+    "form-management",
+    "form-submission",
+    "formgo"
+  ],
   "files": [
     "dist"
   ],

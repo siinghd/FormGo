@@ -153,11 +153,9 @@ function MyForm() {
     >
        <label htmlFor="name">Name:</label>
         <input name="name" required />
-        {props.errors.name && <span>{props.errors.name}</span>}
         
         <label htmlFor="email">Email:</label>
         <input name="email" type="email" required />
-        {props.errors.email && <span>{props.errors.email}</span>}
         
         <button type="submit">Submit</button>
     </Form>
