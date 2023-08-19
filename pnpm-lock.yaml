@@ -9,6 +9,7 @@ specifiers:
   eslint: ^8.45.0
   eslint-plugin-react-hooks: ^4.6.0
   eslint-plugin-react-refresh: ^0.4.3
+  formgo: ^0.1.1
   react: ^18.2.0
   react-dom: ^18.2.0
   typescript: ^5.0.2
@@ -16,6 +17,7 @@ specifiers:
   zod: ^3.22.2
 
 dependencies:
+  formgo: 0.1.1_lxa6kpkp5cn36z5yo777m3ewpy
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   zod: 3.22.2
@@ -938,6 +940,18 @@ packages:
   /flatted/3.2.7:
     resolution: {integrity: sha512-5nqDSxl8nn5BSNxyR3n4I6eDmbolI6WT+QqR547RwxQapgjQBmtktdP+HTBb/a/zLsbzERTONyUB5pefh5TtjQ==}
     dev: true
+
+  /formgo/0.1.1_lxa6kpkp5cn36z5yo777m3ewpy:
+    resolution: {integrity: sha512-8wnTRJTsCwkBHx3/17bykIlb/PI26YjbSo/8tmwvsDO9m4tO+FzB6EzgHCFyeEk1LuabxJ+gWfn0QUoDipsPEA==}
+    peerDependencies:
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      zod: ^3.22.2
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      zod: 3.22.2
+    dev: false
 
   /fs.realpath/1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}

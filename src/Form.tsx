@@ -1,5 +1,11 @@
-import React, { useState, ReactElement, FormEvent, ChangeEvent } from 'react';
-import { ZodSchema, ZodTypeAny } from 'zod';
+import React, {
+  useState,
+  ReactElement,
+  FormEvent,
+  ChangeEvent,
+  ReactNode,
+} from 'react';
+import { ZodTypeAny } from 'zod';
 
 interface ValidationRule {
   required?: boolean;
@@ -19,11 +25,14 @@ interface Props {
   onSubmit: (data: any) => void;
   validationRules?: { [key: string]: ValidationRule };
   customErrorMessages?: { [key: string]: CustomErrorMessages };
-  validationSchema?: ZodSchema<ZodTypeAny>;
+  validationSchema?: ZodTypeAny;
   onError?: (errors: any) => void;
   onFieldChange?: (fieldName: string, fieldValue: any) => void;
   onFormChange?: (formData: any) => void;
-  children: ReactElement | ReactElement[];
+  children:
+    | ((props: { errors: Record<string, string> }) => ReactNode)
+    | ReactElement
+    | ReactElement[];
 }
 
 const Form: React.FC<Props> = ({
@@ -134,16 +143,7 @@ const Form: React.FC<Props> = ({
       onInput={onFieldChange || onFormChange ? handleInputChange : undefined}
       onSubmit={handleSubmit}
     >
-      {onError
-        ? children
-        : React.Children.map(children, (child) => {
-            if (React.isValidElement(child)) {
-              return React.cloneElement(child, {
-                errors: errors,
-              } as any);
-            }
-            return child;
-          })}
+      {typeof children === 'function' ? children({ errors }) : children}
     </form>
   );
 };

@@ -1,6 +1,6 @@
 # FormGo
 
-![npm version](https://badge.fury.io/js/FormGo.svg)
+![npm version](https://badge.fury.io/js/formgo.svg)
 
 A simple, flexible, and powerful React form library, designed to help you build efficient and robust web forms.
 
@@ -15,19 +15,19 @@ A simple, flexible, and powerful React form library, designed to help you build 
 ## Installation
 
 ```bash
-npm install FormGo
+npm install formgo
 ```
 
 or
 
 ```bash
-yarn add FormGo
+yarn add formgo
 ```
 
 or
 
 ```bash
-pnpm add FormGo
+pnpm add formgo
 ```
 
 ## Usage
@@ -74,7 +74,7 @@ The `Form` component is where your form fields will live.
 #### Props
 
 - **onSubmit (data: any) => void**: Function called when the form is submitted.
-- **validationRules? { [key: string]: ValidationRule }**: Optional custom validation rules.
+- **validationRules? { [key: string]: ValidationRule }**: Optional custom validation rules. Zod schema is prioritized over this if both provided.
 - **customErrorMessages? { [key: string]: CustomErrorMessages }**: Optional custom error messages.
 - **validationSchema? ZodSchema<ZodTypeAny>**: Optional Zod schema for validation.
 - **onError? (errors: any) => void**: Optional function called when validation errors occur.
@@ -150,7 +150,15 @@ function MyForm() {
       validationSchema={userSchema}
       onError={handleError}
     >
-      {/* ...form fields... */}
+       <label htmlFor="name">Name:</label>
+        <input name="name" required />
+        {props.errors.name && <span>{props.errors.name}</span>}
+        
+        <label htmlFor="email">Email:</label>
+        <input name="email" type="email" required />
+        {props.errors.email && <span>{props.errors.email}</span>}
+        
+        <button type="submit">Submit</button>
     </Form>
   );
 }
