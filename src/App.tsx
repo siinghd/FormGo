@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import './App.css';
-import Form from './Form';
+import Form from 'formgo';
 import { useRef } from 'react';
 
 function App() {

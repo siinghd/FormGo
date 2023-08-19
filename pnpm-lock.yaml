@@ -9,7 +9,7 @@ specifiers:
   eslint: ^8.45.0
   eslint-plugin-react-hooks: ^4.6.0
   eslint-plugin-react-refresh: ^0.4.3
-  formgo: ^0.1.3
+  formgo: ^0.1.6
   react: ^18.2.0
   react-dom: ^18.2.0
   typescript: ^5.0.2
@@ -17,7 +17,7 @@ specifiers:
   zod: ^3.22.2
 
 dependencies:
-  formgo: 0.1.3_lxa6kpkp5cn36z5yo777m3ewpy
+  formgo: 0.1.6_lxa6kpkp5cn36z5yo777m3ewpy
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   zod: 3.22.2
@@ -941,8 +941,8 @@ packages:
     resolution: {integrity: sha512-5nqDSxl8nn5BSNxyR3n4I6eDmbolI6WT+QqR547RwxQapgjQBmtktdP+HTBb/a/zLsbzERTONyUB5pefh5TtjQ==}
     dev: true
 
-  /formgo/0.1.3_lxa6kpkp5cn36z5yo777m3ewpy:
-    resolution: {integrity: sha512-FrpDNt1u2dLFldDffUaGlYHV9DbFDG8wqftcV7KjkysJXdoxhKOpDcmdMPYma4fMhw9LgHNal6GwXxQu+KToHg==}
+  /formgo/0.1.6_lxa6kpkp5cn36z5yo777m3ewpy:
+    resolution: {integrity: sha512-dY1A26fTAI4rkbV7yThoXgoTZGpkejvV8+HfYq2njt+QG/c8QsE52LTonrhXWtT7RLc73Q4PqiR+LBTY6wv8xA==}
     peerDependencies:
       react: ^18.2.0
       react-dom: ^18.2.0
