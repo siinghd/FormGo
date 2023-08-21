@@ -2,7 +2,7 @@
 
 ![npm version](https://badge.fury.io/js/formgo.svg)
 
-A simple, flexible, and powerful React form library, designed to help you build efficient and robust web forms.
+A simple and flexible React form library, designed to help you build efficient and robust web forms.
 
 ## Features
 
@@ -10,7 +10,6 @@ A simple, flexible, and powerful React form library, designed to help you build 
 - Built-in validation with custom rules or Zod schema
 - Flexible error handling options
 - Highly customizable
-
 
 ## Installation
 
@@ -32,7 +31,7 @@ pnpm add formgo
 
 ## Usage
 
-Here's a simple example of a form that uses `FormGo`. The errors are injected into child components by default and can be displayed conditionally based on the `errors` object:
+Here's a simple example of a form that uses `FormGo`. The errors and defaultValues are injected into child components by default and can be displayed conditionally based on the `errors` and `defaultValues` objects:
 
 ```jsx
 import React from 'react';
@@ -44,17 +43,46 @@ function MyForm() {
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form
+      onSubmit={handleSubmit}
+      validationRules={{
+        name: {
+          required: true,
+          minLength: 2,
+          maxLength: 30,
+        },
+        email: {
+          required: true,
+          pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        },
+      }}
+      customErrorMessages={{
+        name: {
+          required: 'Name is required',
+          minLength: 'Name must be at least 2 characters',
+        },
+        email: {
+          required: 'Email is required',
+          pattern: 'Email format is invalid',
+        },
+      }}
+      defaultValues={{ name: 'John', email: 'john@example.com' }}
+    >
       {(props: any) => (
         <>
           <label htmlFor="name">Name:</label>
-          <input name="name" required />
+          <input name="name" required defaultValue={props.defaultValues.name} />
           {props.errors.name && <span>{props.errors.name}</span>}
-          
+
           <label htmlFor="email">Email:</label>
-          <input name="email" type="email" required />
+          <input
+            name="email"
+            type="email"
+            required
+            defaultValue={props.defaultValues.email}
+          />
           {props.errors.email && <span>{props.errors.email}</span>}
-          
+
           <button type="submit">Submit</button>
         </>
       )}
@@ -64,24 +92,40 @@ function MyForm() {
 
 export default MyForm;
 ```
+#### Note on the `name` attribute in form fields
+
+For `FormGo` to function correctly and gather form data, it's essential to assign a `name` attribute to every form field. This attribute helps the library identify and capture the value of each field upon form submission.
+
+In the examples provided, you'll notice the `name` attribute being used:
+
+```jsx
+<input name="name" required />
+```
+
+```jsx
+<input name="email" type="email" required />
+```
+
+Ensure that every form field in your `FormGo` forms has a unique `name` attribute, as this is pivotal for the correct operation of the library.
 
 ## API Reference
 
 ### `<Form />`
 
-The `Form` component is where your form fields will live. It can optionally accept a `ref` to provide a method to reset the form.
+The `Form` component is the heart of your form. It can optionally accept a `ref` to provide a method to reset the form.
 
 #### Props
 
 - **onSubmit (data: any) => void**: Function called when the form is submitted.
-- **validationRules? { [key: string]: ValidationRule }**: Optional custom validation rules. Zod schema is prioritized over this if both provided.
+- **validationRules? { [key: string]: ValidationRule }**: Optional custom validation rules. Zod schema is prioritized over this if both are provided.
 - **customErrorMessages? { [key: string]: CustomErrorMessages }**: Optional custom error messages.
 - **validationSchema? ZodSchema<ZodTypeAny>**: Optional Zod schema for validation.
 - **onError? (errors: any) => void**: Optional function called when validation errors occur.
 - **onFieldChange? (fieldName: string, fieldValue: any) => void**: Optional function called when a field changes.
 - **onFormChange? (formData: any) => void**: Optional function called when any part of the form changes.
-- **className? string**: Optional class name to be added to the form element
+- **className? string**: Optional class name to be added to the form element.
 - **style? React.CSSProperties**: Optional inline styles to be applied to the form element.
+- **defaultValues? Record<string, any>**: Optional object containing default values for form fields.
 
 #### Ref
 
@@ -136,18 +180,18 @@ export default MyForm;
     },
     email: {
       required: true,
-      pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-    }
+      pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+    },
   }}
   customErrorMessages={{
     name: {
-      required: "Name is required",
-      minLength: "Name must be at least 2 characters",
+      required: 'Name is required',
+      minLength: 'Name must be at least 2 characters',
     },
     email: {
-      required: "Email is required",
-      pattern: "Email format is invalid"
-    }
+      required: 'Email is required',
+      pattern: 'Email format is invalid',
+    },
   }}
 >
   {/* ...form fields... */}
@@ -165,12 +209,9 @@ const userSchema = z.object({
   email: z.string().email(),
 });
 
-<Form
-  onSubmit={handleSubmit}
-  validationSchema={userSchema}
->
+<Form onSubmit={handleSubmit} validationSchema={userSchema}>
   {/* ...form fields... */}
-</Form>
+</Form>;
 ```
 
 ## Error Handling
@@ -189,21 +230,74 @@ function MyForm() {
       validationSchema={userSchema}
       onError={handleError}
     >
-       <label htmlFor="name">Name:</label>
-        <input name="name" required />
-        
-        <label htmlFor="email">Email:</label>
-        <input name="email" type="email" required />
-        
-        <button type="submit">Submit</button>
+      <label htmlFor="name">Name:</label>
+      <input name="name" required />
+
+      <label htmlFor="email">Email:</label>
+      <input name="email" type="email" required />
+
+      <button type="submit">Submit</button>
     </Form>
   );
 }
 ```
 
+
+### Using Children as a Function
+
+When you utilize the children of the `Form` component as a function, it allows you to access both `errors` and `defaultValues` as arguments to that function. This is especially useful when you want to initialize your form fields with some default values:
+
+```jsx
+<Form
+  onSubmit={handleSubmit}
+  defaultValues={{ name: 'John', email: 'john@example.com' }}
+>
+  {(props: any) => (
+    <>
+      <label htmlFor="name">Name:</label>
+      <input name="name" required defaultValue={props.defaultValues.name} />
+      {props.errors.name && <span>{props.errors.name}</span>}
+
+      <label htmlFor="email">Email:</label>
+      <input
+        name="email"
+        type="email"
+        required
+        defaultValue={props.defaultValues.email}
+      />
+      {props.errors.email && <span>{props.errors.email}</span>}
+
+      <button type="submit">Submit</button>
+    </>
+  )}
+</Form>
+```
+
+### Using children not as a function
+
+If you don't use the children as a function i.e
+
+```jsx
+<Form onSubmit={handleSubmit} defaultValues={{ name: 'John', email: 'john@example.com' }}>
+  <>
+    <label htmlFor="name">Name:</label>
+    <input name="name" required />
+
+    <label htmlFor="email">Email:</label>
+    <input name="email" type="email" required />
+
+    <button type="submit">Submit</button>
+  </>
+</Form>
+```
+
+In this scenario, you won't have access to the `defaultValues` prop directly in the form fields. To initialize fields with default values, you would need to use the function approach.
+
+---
+
 ## Contributing
 
-Your contributions to `FormGo` is welcome!
+Your contributions to `FormGo` are welcome!
 
 ## License
 

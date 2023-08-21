@@ -35,9 +35,13 @@ interface Props {
   className?: string;
   style?: React.CSSProperties;
   children:
-    | ((props: { errors: Record<string, string> }) => ReactNode)
+    | ((props: {
+        errors: Record<string, string>;
+        defaultValues: Record<string, any>;
+      }) => ReactNode)
     | ReactElement
     | ReactElement[];
+  defaultValues?: Record<string, any>;
 }
 
 const Form = forwardRef<{ resetForm: () => void }, Props>(
@@ -53,6 +57,7 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
       className,
       style,
       children,
+      defaultValues = {}, // Add this line
     },
     ref: React.Ref<{ resetForm: () => void }> | null | undefined
   ) => {
@@ -167,7 +172,9 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
         className={className}
         style={style}
       >
-        {typeof children === 'function' ? children({ errors }) : children}
+        {typeof children === 'function'
+          ? children({ errors, defaultValues })
+          : children}
       </form>
     );
   }

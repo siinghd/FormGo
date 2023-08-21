@@ -21,28 +21,41 @@ function App() {
     console.log('asf:', f);
   };
   return (
-    <Form
-      ref={formRef}
-      onSubmit={handleSubmit}
-      validationSchema={userSchema}
-      onError={handleError}
-      onFormChange={onFieldChange}
-      className="form"
-    >
-      {(props: any) => (
-        <>
-          <label htmlFor="name">Name:</label>
-          <input name="name" required />
-          {props.errors.name && <span>{props.errors.name}</span>}
+    <div className="App">
+      <Form
+        key={1}
+        ref={formRef}
+        onSubmit={handleSubmit}
+        validationSchema={userSchema}
+        onError={handleError}
+        onFormChange={onFieldChange}
+        className="form"
+        defaultValues={{ name: 'John', email: 'john@example.com' }}
+      >
+        {(props: any) => (
+          <>
+            <label htmlFor="name">Name:</label>
+            <input
+              name="name"
+              required
+              defaultValue={props.defaultValues.name}
+            />
+            {props.errors.name && <span>{props.errors.name}</span>}
 
-          <label htmlFor="email">Email:</label>
-          <input name="email" type="email" required />
-          {props.errors.email && <span>{props.errors.email}</span>}
+            <label htmlFor="email">Email:</label>
+            <input
+              name="email"
+              type="email"
+              required
+              defaultValue={props.defaultValues.email}
+            />
+            {props.errors.email && <span>{props.errors.email}</span>}
 
-          <button type="submit">Submit</button>
-        </>
-      )}
-    </Form>
+            <button type="submit">Submit</button>
+          </>
+        )}
+      </Form>
+    </div>
   );
 }
 
