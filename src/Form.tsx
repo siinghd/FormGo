@@ -10,6 +10,8 @@ import React, {
 } from 'react';
 import { ZodTypeAny } from 'zod';
 
+// todo improve types
+
 interface ValidationRule {
   required?: boolean;
   minLength?: number;
@@ -57,7 +59,7 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
       className,
       style,
       children,
-      defaultValues = {}, // Add this line
+      defaultValues = {},
     },
     ref: React.Ref<{ resetForm: () => void }> | null | undefined
   ) => {
