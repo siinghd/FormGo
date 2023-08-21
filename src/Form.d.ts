@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { ZodSchema, ZodTypeAny } from 'zod';
+import { ZodTypeAny } from 'zod';
 interface ValidationRule {
     required?: boolean;
     minLength?: number;
@@ -20,13 +20,19 @@ interface Props {
     customErrorMessages?: {
         [key: string]: CustomErrorMessages;
     };
-    validationSchema?: ZodSchema<ZodTypeAny>;
+    validationSchema?: ZodTypeAny;
     onError?: (errors: any) => void;
     onFieldChange?: (fieldName: string, fieldValue: any) => void;
     onFormChange?: (formData: any) => void;
+    className?: string;
+    style?: React.CSSProperties;
     children: ((props: {
         errors: Record<string, string>;
+        defaultValues: Record<string, any>;
     }) => ReactNode) | ReactElement | ReactElement[];
+    defaultValues?: Record<string, any>;
 }
-declare const Form: React.FC<Props>;
+declare const Form: import("react").ForwardRefExoticComponent<Props & import("react").RefAttributes<{
+    resetForm: () => void;
+}>>;
 export default Form;
