@@ -10,6 +10,8 @@ A simple and flexible React form library, designed to help you build efficient a
 - Built-in validation with custom rules or Zod schema
 - Flexible error handling options
 - Highly customizable
+- Nested Fields Support
+- Nested Fields Validation
 
 ## Installation
 
