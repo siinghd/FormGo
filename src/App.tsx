@@ -11,7 +11,9 @@ function App() {
     formRef.current?.resetForm();
   };
   const userSchema = z.object({
-    name: z.string().min(2).max(30),
+    userinfo: z.object({
+      name: z.string().min(2).max(30),
+    }),
     email: z.string().email(),
   });
   const handleError = (errors: any) => {
@@ -26,7 +28,31 @@ function App() {
         key={1}
         ref={formRef}
         onSubmit={handleSubmit}
-        validationSchema={userSchema}
+        // validationSchema={userSchema}
+        validationRules={{
+          userinfo: {
+            name: {
+              required: true,
+              minLength: 10,
+            },
+          },
+          email: {
+            required: true,
+            pattern: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
+          },
+        }}
+        customErrorMessages={{
+          userinfo: {
+            name: {
+              required: 'Name is required',
+              minLength: 'Name must be at least 10 characters',
+            },
+          },
+          email: {
+            required: 'Email is required',
+            pattern: 'Email is invalid',
+          },
+        }}
         onError={handleError}
         onFormChange={onFieldChange}
         className="form"
@@ -36,11 +62,13 @@ function App() {
           <>
             <label htmlFor="name">Name:</label>
             <input
-              name="name"
+              name="userinfo.name"
               required
               defaultValue={props.defaultValues.name}
             />
-            {props.errors.name && <span>{props.errors.name}</span>}
+            {props.errors.userinfo?.name && (
+              <span>{props.errors.userinfo?.name}</span>
+            )}
 
             <label htmlFor="email">Email:</label>
             <input
