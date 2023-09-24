@@ -121,7 +121,7 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
       }
 
       if (error) {
-        return { [name]: error };
+        return { [parentName ? `${parentName}.${name}` : name]: error };
       }
 
       // Handle nested validation dynamically
@@ -132,15 +132,14 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
       ) {
         const nestedErrors: Record<string, any> = {};
         for (const [key, nestedValue] of Object.entries(value)) {
-          const nestedName = `${parentName}${name}.${key}`;
           const nestedRules = rules[key] as ValidationRule;
           const nestedMessages = messages[key] as CustomErrorMessages;
           const nestedError = validateField(
-            nestedName,
+            key,
             nestedValue,
-            nestedRules || {}, // provide specific rules for nested fields
-            nestedMessages || {}, // provide specific messages for nested fields
-            `${name}.`
+            nestedRules || {},
+            nestedMessages || {},
+            parentName ? `${parentName}.${name}` : name
           );
           if (nestedError) {
             Object.assign(nestedErrors, nestedError);
@@ -214,8 +213,9 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
             validationRules[field],
             customErrorMessages[field]
           );
+
           if (error) {
-            Object.assign(newErrors, error); // Using Object.assign to merge error objects
+            Object.assign(newErrors, error);
           }
         });
       }

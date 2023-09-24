@@ -32,8 +32,7 @@ function App() {
         validationRules={{
           userinfo: {
             name: {
-              required: true,
-              minLength: 10,
+              zip: { required: true, minLength: 10 },
             },
           },
           email: {
@@ -44,8 +43,10 @@ function App() {
         customErrorMessages={{
           userinfo: {
             name: {
-              required: 'Name is required',
-              minLength: 'Name must be at least 10 characters',
+              zip: {
+                required: 'Name is required',
+                minLength: 'Name must be at least 10 characters',
+              },
             },
           },
           email: {
@@ -60,16 +61,17 @@ function App() {
       >
         {(props: any) => (
           <>
+            {console.log('props:', props)}
             <label htmlFor="name">Name:</label>
+
             <input
-              name="userinfo.name"
+              name="userinfo.name.zip"
               required
               defaultValue={props.defaultValues.name}
             />
-            {props.errors.userinfo?.name && (
-              <span>{props.errors.userinfo?.name}</span>
+            {props.errors.userinfo?.name?.zip && (
+              <span>{props.errors.userinfo?.name?.zip}</span>
             )}
-
             <label htmlFor="email">Email:</label>
             <input
               name="email"

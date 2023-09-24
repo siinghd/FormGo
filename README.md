@@ -126,6 +126,7 @@ The `Form` component is the heart of your form. It can optionally accept a `ref`
 - **className? string**: Optional class name to be added to the form element.
 - **style? React.CSSProperties**: Optional inline styles to be applied to the form element.
 - **defaultValues? Record<string, any>**: Optional object containing default values for form fields.
+- **onEnterSubmit? boolean**: Optional onEnterSubmit prop, let you enable or disable form submission when the user presses the Enter key. By default, this prop is set to true.
 
 #### Ref
 
@@ -162,7 +163,6 @@ function MyForm() {
 
 export default MyForm;
 ```
-
 ## Validation
 
 `FormGo` supports powerful validation. Use custom validation rules with optional custom error messages or a Zod schema:
@@ -214,6 +214,104 @@ const userSchema = z.object({
 </Form>;
 ```
 
+## Nested Fields Support
+
+`FormGo` now supports deeply nested objects for form validation. You can define validation rules and custom error messages for nested fields. The nesting can go multiple levels deep.
+
+### Example of Nested Fields with Custom Validation Rules:
+
+```jsx
+<Form
+  onSubmit={handleSubmit}
+  validationRules={{
+    userinfo: {
+      name: {
+        required: true,
+        minLength: 2,
+        maxLength: 30,
+      },
+      address: {
+        street: {
+          required: true
+        },
+        postal: {
+          code: {
+            required: true
+          }
+        }
+      }
+    }
+  }}
+  customErrorMessages={{
+    userinfo: {
+      name: {
+        required: 'Name is required',
+        minLength: 'Name must be at least 2 characters',
+      },
+      address: {
+        street: {
+          required: 'Street is required'
+        },
+        postal: {
+          code: {
+            required: 'Postal code is required'
+          }
+        }
+      }
+    }
+  }}
+  defaultValues={{ userinfo: { name: 'John', address: { street: '123 Main St', postal: { code: '12345' } } } }}
+>
+  {(props: any) => (
+    <>
+      <label htmlFor="userinfo.name">Name:</label>
+      <input name="userinfo.name" required defaultValue={props.defaultValues.userinfo.name} />
+      {props.errors.userinfo?.name && <span>{props.errors.userinfo.name}</span>}
+
+      <label htmlFor="userinfo.address.street">Street:</label>
+      <input name="userinfo.address.street" required defaultValue={props.defaultValues.userinfo.address.street} />
+      {props.errors.userinfo?.address?.street && <span>{props.errors.userinfo.address.street}</span>}
+
+      {/* ... More fields ... */}
+      
+      <button type="submit">Submit</button>
+    </>
+  )}
+</Form>
+```
+
+### Accessing Nested Errors:
+
+When using nested fields, you can access the nested errors in the `errors` object in your child component function.
+
+```jsx
+{props.errors.userinfo?.name && <span>{props.errors.userinfo.name}</span>}
+{props.errors.userinfo?.address?.street && <span>{props.errors.userinfo.address.street}</span>}
+```
+
+### Zod Schema Support for Nested Fields:
+
+If you are using Zod for validation, nested validation is also supported.
+
+```jsx
+import { z } from 'zod';
+
+const userSchema = z.object({
+  userinfo: z.object({
+    name: z.string().min(2).max(30),
+    address: z.object({
+      street: z.string(),
+      postal: z.object({
+        code: z.string()
+      })
+    })
+  })
+});
+
+<Form onSubmit={handleSubmit} validationSchema={userSchema}>
+  {/* ...form fields... */}
+</Form>
+```
 ## Error Handling
 
 By default, the `errors` object is injected into child components. If you want more control over error handling, use the `onError` prop:
