@@ -4,11 +4,15 @@ import Form from './Form';
 import { useRef } from 'react';
 
 function App() {
-  const formRef = useRef<{ resetForm: () => void }>(null);
+  const formRef = useRef<{ resetForm: () => void; submit: () => void }>(null);
   const handleSubmit = (formData: any) => {
     console.log('Form data:', formData);
     console.log('Form ref:', formRef.current);
+
     formRef.current?.resetForm();
+  };
+  const handleSubmitBtn = () => {
+    formRef.current?.submit();
   };
   const userSchema = z.object({
     name: z.string().min(2).max(30),
@@ -17,9 +21,9 @@ function App() {
   const handleError = (errors: any) => {
     console.log('Validation errors:', errors);
   };
-  const onFieldChange = (f: any) => {
-    console.log('asf:', f);
-  };
+  // const onFieldChange = (f: any) => {
+  //   console.log('asf:', f);
+  // };
   return (
     <div className="App">
       <Form
@@ -28,7 +32,7 @@ function App() {
         onSubmit={handleSubmit}
         validationSchema={userSchema}
         onError={handleError}
-        onFormChange={onFieldChange}
+        // onFormChange={onFieldChange}
         className="form"
         defaultValues={{ name: 'John', email: 'john@example.com' }}
       >
@@ -51,7 +55,7 @@ function App() {
             />
             {props.errors.email && <span>{props.errors.email}</span>}
 
-            <button type="submit">Submit</button>
+            <button onClick={handleSubmitBtn}>Submit</button>
           </>
         )}
       </Form>

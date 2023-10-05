@@ -46,7 +46,7 @@ interface Props {
   defaultValues?: Record<string, any>;
 }
 
-const Form = forwardRef<{ resetForm: () => void }, Props>(
+const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
   (
     {
       onSubmit,
@@ -61,7 +61,10 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
       children,
       defaultValues = {},
     },
-    ref: React.Ref<{ resetForm: () => void }> | null | undefined
+    ref:
+      | React.Ref<{ resetForm: () => void; submit: () => void }>
+      | null
+      | undefined
   ) => {
     const formRef = useRef<HTMLFormElement>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -163,8 +166,18 @@ const Form = forwardRef<{ resetForm: () => void }, Props>(
         formRef.current.reset();
       }
     };
+    const manualSubmit = () => {
+      if (formRef.current) {
+        const event = new Event('submit', {
+          bubbles: true,
+          cancelable: true,
+        });
+        formRef.current.dispatchEvent(event);
+      }
+    };
     useImperativeHandle(ref, () => ({
       resetForm,
+      submit: manualSubmit,
     }));
     return (
       <form
