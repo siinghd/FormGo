@@ -17,6 +17,7 @@ interface ValidationRule {
   minLength?: number;
   maxLength?: number;
   pattern?: RegExp;
+  [key: string]: ValidationRule | boolean | number | RegExp | undefined;
 }
 
 interface CustomErrorMessages {
@@ -24,6 +25,7 @@ interface CustomErrorMessages {
   minLength?: string;
   maxLength?: string;
   pattern?: string;
+  [key: string]: CustomErrorMessages | string | undefined;
 }
 
 interface Props {
@@ -44,6 +46,7 @@ interface Props {
     | ReactElement
     | ReactElement[];
   defaultValues?: Record<string, any>;
+  onEnterSubmit?: boolean;
 }
 
 const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
@@ -60,6 +63,7 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
       style,
       children,
       defaultValues = {},
+      onEnterSubmit = true,
     },
     ref:
       | React.Ref<{ resetForm: () => void; submit: () => void }>
@@ -68,30 +72,85 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
   ) => {
     const formRef = useRef<HTMLFormElement>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const unflattenErrors = (
+      errors: Record<string, string>
+    ): Record<string, any> => {
+      const unflattened: Record<string, any> = {};
+
+      for (const [flatKey, message] of Object.entries(errors)) {
+        const keys = flatKey.split('.');
+        keys.reduce((nested, key, index) => {
+          if (index === keys.length - 1) {
+            nested[key] = message;
+          } else {
+            nested[key] = nested[key] || {};
+          }
+          return nested[key];
+        }, unflattened);
+      }
+
+      return unflattened;
+    };
+    const createNestedObject = (
+      obj: Record<string, any>,
+      keys: string[],
+      value: any
+    ) => {
+      const lastKey = keys.pop();
+      keys.reduce((r, k) => (r[k] = r[k] || {}), obj)[lastKey!] = value;
+    };
 
     const validateField = (
       name: string,
       value: any,
       rules: ValidationRule,
-      messages: CustomErrorMessages = {}
+      messages: CustomErrorMessages = {},
+      parentName = ''
     ) => {
+      let error = null;
+
       if (rules.required && !value) {
-        return messages.required || 'This field is required';
-      }
-      if (rules.minLength && value.length < rules.minLength) {
-        return (
-          messages.minLength || `Must be at least ${rules.minLength} characters`
-        );
-      }
-      if (rules.maxLength && value.length > rules.maxLength) {
-        return (
+        error = messages.required || 'This field is required';
+      } else if (rules.minLength && value?.length < rules.minLength) {
+        error =
+          messages.minLength ||
+          `Must be at least ${rules.minLength} characters`;
+      } else if (rules.maxLength && value?.length > rules.maxLength) {
+        error =
           messages.maxLength ||
-          `Must be no more than ${rules.maxLength} characters`
-        );
+          `Must be no more than ${rules.maxLength} characters`;
+      } else if (rules.pattern && !rules.pattern.test(value)) {
+        error = messages.pattern || 'Invalid format';
       }
-      if (rules.pattern && !rules.pattern.test(value)) {
-        return messages.pattern || 'Invalid format';
+
+      if (error) {
+        return { [parentName ? `${parentName}.${name}` : name]: error };
       }
+
+      // Handle nested validation dynamically
+      if (
+        typeof value === 'object' &&
+        value !== null &&
+        !Array.isArray(value)
+      ) {
+        const nestedErrors: Record<string, any> = {};
+        for (const [key, nestedValue] of Object.entries(value)) {
+          const nestedRules = rules[key] as ValidationRule;
+          const nestedMessages = messages[key] as CustomErrorMessages;
+          const nestedError = validateField(
+            key,
+            nestedValue,
+            nestedRules || {},
+            nestedMessages || {},
+            parentName ? `${parentName}.${name}` : name
+          );
+          if (nestedError) {
+            Object.assign(nestedErrors, nestedError);
+          }
+        }
+        return Object.keys(nestedErrors).length ? nestedErrors : null;
+      }
+
       return null;
     };
 
@@ -109,29 +168,44 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
         const data = new FormData(formElement);
         const formDataObject: Record<string, any> = {};
         data.forEach((value, key) => {
-          formDataObject[key] = value;
+          if (key.includes('.')) {
+            createNestedObject(formDataObject, key.split('.'), value);
+          } else {
+            formDataObject[key] = value;
+          }
         });
 
         onFormChange(formDataObject);
       }
     };
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-
-      const formData = new FormData(event.currentTarget);
-      const formDataObject: Record<string, any> = {};
+    const handleSubmit = (
+      event: FormEvent<HTMLFormElement> | Record<string, any>
+    ) => {
+      let formDataObject: Record<string, any> = {};
       const newErrors: Record<string, string> = {};
 
-      formData.forEach((value, key) => {
-        formDataObject[key] = value;
-      });
+      if (event instanceof Event || event.nativeEvent instanceof Event) {
+        event.preventDefault();
+        if (event.currentTarget instanceof HTMLFormElement) {
+          const formData = new FormData(event.currentTarget);
+          formData.forEach((value, key) => {
+            if (key.includes('.')) {
+              createNestedObject(formDataObject, key.split('.'), value);
+            } else {
+              formDataObject[key] = value;
+            }
+          });
+        }
+      } else {
+        formDataObject = event;
+      }
 
       if (validationSchema) {
         const result = validationSchema.safeParse(formDataObject);
         if (!result.success) {
           result.error.issues.forEach((issue) => {
-            newErrors[issue.path[0]] = issue.message;
+            newErrors[issue.path.join('.')] = issue.message;
           });
         }
       } else {
@@ -142,21 +216,24 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
             validationRules[field],
             customErrorMessages[field]
           );
+
           if (error) {
-            newErrors[field] = error;
+            Object.assign(newErrors, error);
           }
         });
       }
 
       if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors);
+        const nestedErrors = unflattenErrors(newErrors);
+        setErrors(nestedErrors);
         if (onError) {
-          onError(newErrors);
+          onError(nestedErrors);
         }
         return;
       }
-
-      setErrors({});
+      if (Object.keys(errors).length > 0) {
+        setErrors({});
+      }
       onSubmit(formDataObject);
     };
 
@@ -179,11 +256,31 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
       resetForm,
       submit: manualSubmit,
     }));
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLFormElement>) => {
+      if (onEnterSubmit && event.key === 'Enter') {
+        event.preventDefault(); // Prevent default behavior like submitting the form
+        if (formRef.current !== null) {
+          // Null check here
+          const formElement = formRef.current;
+          const formData = new FormData(formElement);
+          const formDataObject: Record<string, any> = {};
+          formData.forEach((value, key) => {
+            if (key.includes('.')) {
+              createNestedObject(formDataObject, key.split('.'), value);
+            } else {
+              formDataObject[key] = value;
+            }
+          });
+          handleSubmit(formDataObject);
+        }
+      }
+    };
     return (
       <form
         ref={formRef}
         onInput={onFieldChange || onFormChange ? handleInputChange : undefined}
         onSubmit={handleSubmit}
+        onKeyDown={handleKeyPress}
         className={className}
         style={style}
       >
