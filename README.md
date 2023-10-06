@@ -129,12 +129,15 @@ The `Form` component is the heart of your form. It can optionally accept a `ref`
 - **style? React.CSSProperties**: Optional inline styles to be applied to the form element.
 - **defaultValues? Record<string, any>**: Optional object containing default values for form fields.
 - **onEnterSubmit? boolean**: Optional onEnterSubmit prop, let you enable or disable form submission when the user presses the Enter key. By default, this prop is set to true.
+-  **onEnterSubmit? boolean**: Optional onEnterSubmit prop, let you enable or disable form submission when the user presses the Enter key. By default, this prop is set to true.
+- **includeDataToCallBack? boolean**: Optional includeDataToCallBack prop, let you include the formdata in the callback function. By default, this prop is set to false.
 
 #### Ref
 
 When a `ref` is passed to the `Form` component, it provides the following method:
 
 - **resetForm(): void**: Method to reset the form to its initial state. It clears all field values and validation errors.
+- **submit(): void**: Method to manually trigger submit of  the form.
 
 ##### Example of using `ref` to reset the form:
 

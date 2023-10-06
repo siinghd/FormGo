@@ -42,11 +42,13 @@ interface Props {
     | ((props: {
         errors: Record<string, string>;
         defaultValues: Record<string, any>;
+        formData?: Record<string, any>;
       }) => ReactNode)
     | ReactElement
     | ReactElement[];
   defaultValues?: Record<string, any>;
   onEnterSubmit?: boolean;
+  includeDataToCallBack?: boolean;
 }
 
 const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
@@ -64,6 +66,7 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
       children,
       defaultValues = {},
       onEnterSubmit = true,
+      includeDataToCallBack = false,
     },
     ref:
       | React.Ref<{ resetForm: () => void; submit: () => void }>
@@ -99,7 +102,23 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
       const lastKey = keys.pop();
       keys.reduce((r, k) => (r[k] = r[k] || {}), obj)[lastKey!] = value;
     };
+    const getFormData = (): Record<string, any> => {
+      if (formRef.current) {
+        const formElement = formRef.current;
+        const formData = new FormData(formElement);
+        const formDataObject: Record<string, any> = {};
+        formData.forEach((value, key) => {
+          if (key.includes('.')) {
+            createNestedObject(formDataObject, key.split('.'), value);
+          } else {
+            formDataObject[key] = value;
+          }
+        });
 
+        return formDataObject;
+      }
+      return {};
+    };
     const validateField = (
       name: string,
       value: any,
@@ -155,7 +174,6 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
     };
 
     const handleInputChange = (event: ChangeEvent<HTMLFormElement>) => {
-      const formElement = event.currentTarget;
       const changedField = event.target;
       const fieldName = changedField.name;
       const fieldValue = changedField.value;
@@ -165,16 +183,7 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
       }
 
       if (onFormChange) {
-        const data = new FormData(formElement);
-        const formDataObject: Record<string, any> = {};
-        data.forEach((value, key) => {
-          if (key.includes('.')) {
-            createNestedObject(formDataObject, key.split('.'), value);
-          } else {
-            formDataObject[key] = value;
-          }
-        });
-
+        const formDataObject = getFormData();
         onFormChange(formDataObject);
       }
     };
@@ -182,24 +191,9 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
     const handleSubmit = (
       event: FormEvent<HTMLFormElement> | Record<string, any>
     ) => {
-      let formDataObject: Record<string, any> = {};
+      event.preventDefault();
+      const formDataObject: Record<string, any> = getFormData();
       const newErrors: Record<string, string> = {};
-
-      if (event instanceof Event || event.nativeEvent instanceof Event) {
-        event.preventDefault();
-        if (event.currentTarget instanceof HTMLFormElement) {
-          const formData = new FormData(event.currentTarget);
-          formData.forEach((value, key) => {
-            if (key.includes('.')) {
-              createNestedObject(formDataObject, key.split('.'), value);
-            } else {
-              formDataObject[key] = value;
-            }
-          });
-        }
-      } else {
-        formDataObject = event;
-      }
 
       if (validationSchema) {
         const result = validationSchema.safeParse(formDataObject);
@@ -258,21 +252,7 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
     }));
     const handleKeyPress = (event: React.KeyboardEvent<HTMLFormElement>) => {
       if (onEnterSubmit && event.key === 'Enter') {
-        event.preventDefault(); // Prevent default behavior like submitting the form
-        if (formRef.current !== null) {
-          // Null check here
-          const formElement = formRef.current;
-          const formData = new FormData(formElement);
-          const formDataObject: Record<string, any> = {};
-          formData.forEach((value, key) => {
-            if (key.includes('.')) {
-              createNestedObject(formDataObject, key.split('.'), value);
-            } else {
-              formDataObject[key] = value;
-            }
-          });
-          handleSubmit(formDataObject);
-        }
+        handleSubmit(event);
       }
     };
     return (
@@ -285,7 +265,11 @@ const Form = forwardRef<{ resetForm: () => void; submit: () => void }, Props>(
         style={style}
       >
         {typeof children === 'function'
-          ? children({ errors, defaultValues })
+          ? children({
+              errors,
+              defaultValues,
+              formData: includeDataToCallBack ? getFormData() : undefined,
+            })
           : children}
       </form>
     );

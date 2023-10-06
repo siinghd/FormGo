@@ -11,8 +11,8 @@ function App() {
 
     formRef.current?.resetForm();
   };
-  const handleSubmitBtn = () => {
-    formRef.current?.submit();
+  const handleSubmitBtn = (data) => {
+    console.log(data);
   };
   const userSchema = z.object({
     userinfo: z.object({
@@ -62,6 +62,7 @@ function App() {
         // onFormChange={onFieldChange}
         className="form"
         defaultValues={{ name: 'John', email: 'john@example.com' }}
+        includeDataToCallBack={true}
       >
         {(props: any) => (
           <>
